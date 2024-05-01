@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
             appendUserMessage(userMessage);
             userInput.value = '';
 
-            // Send user message to the bot and handle the response
+            
             sendMessageToBot(userMessage);
         }
     });
@@ -304,7 +304,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function sendMessageToBot(message) {
-    // Make a request to the OpenAI API
     const API_URL = "https://api.openai.com/v1/completions" ;
     const API_KEY = "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" ;
     fetch(API_URL, { 
@@ -321,7 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
     })
     .then(response => response.json())
     .then(data => {
-        // Handle the bot's response
         if (data.choices && data.choices.length > 0) {
             const botResponse = data.choices[0].text.trim();
             appendChatbotMessage(botResponse);
