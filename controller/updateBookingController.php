@@ -3,7 +3,6 @@
 include_once "../config.php";
 include_once "../model/booking.php";
 
-
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['action'] === 'update_booking') {
     $id = $_POST["id"];
    
@@ -16,9 +15,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
         $price = isset($_POST["price"]) ? $_POST["price"] : $existingBooking['price'];
         $date = isset($_POST["date"]) ? $_POST["date"] : $existingBooking['date'];
         $photo = isset($_FILES["photo"]["name"]) ? $_FILES["photo"]["name"] : $existingBooking['photo'];
+        $number = isset($_POST["number"]) ? $_POST["number"] : $existingBooking['number']; 
 
        
-        $updatedBooking = new Booking($name, $description, $price, $date, $photo, $id);
+        $updatedBooking = new Booking($name, $description, $price, $date, $photo, $number, $id); 
         $success = $updatedBooking->update();
 
         if ($success) {
@@ -55,4 +55,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
         }
     }
 }
+
 ?>

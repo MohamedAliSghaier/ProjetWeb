@@ -16,11 +16,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $password = $_POST['password'];
 
             $loggedInUser = $userModel->login($email, $password);
+            var_dump($loggedInUser); 
             if ($loggedInUser) {
                 session_start();
                 $_SESSION['user_id'] = $loggedInUser['id'];
                 $_SESSION['username'] = $loggedInUser['username'];
                 $_SESSION['user_photo'] = $loggedInUser['photo'];
+                $_SESSION['user_email'] = $loggedInUser['email'];
+
                 header('Location: ../view/home.php'); 
                 exit;
             } else {

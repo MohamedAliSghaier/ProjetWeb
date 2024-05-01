@@ -1,10 +1,10 @@
 <?php
 include("dashbSides.php");
 include_once "../model/booking.php";
-
+include_once "../model/reservation.php";
 
 $bookings = Booking::getAllBookings();
-
+$reservations = Reservation::getAllReservations();
 ?>
 
 <!DOCTYPE html>
@@ -25,7 +25,8 @@ $bookings = Booking::getAllBookings();
         }
 
         .update-btn,
-        .delete-btn {
+        .delete-btn,
+        .delete-reservation-btn {
             padding: 0.6rem 1rem;
             border: none;
             border-radius: var(--border-radius-1);
@@ -43,9 +44,14 @@ $bookings = Booking::getAllBookings();
             background-color: var(--color-danger);
             color: var(--color-white);
         }
+        .delete-reservation-btn{
+            background-color: var(--color-danger);
+            color: var(--color-white);
+        }
 
         .update-btn:hover,
-        .delete-btn:hover {
+        .delete-btn:hover,
+        .delete-reservation-btn {
             filter: brightness(90%);
         }
 
@@ -102,9 +108,11 @@ $bookings = Booking::getAllBookings();
 </head>
 <body>
 <main>
+    
     <div class="recent-orders all">
         <h2>Bookings</h2>
         <table>
+          
             <thead>
                 <tr>
                     <th>ID</th>
@@ -113,6 +121,7 @@ $bookings = Booking::getAllBookings();
                     <th>Price</th>
                     <th>Date</th>
                     <th>Photo</th>
+                    <th>Available</th>
                     <th>Actions</th> 
                 </tr>
             </thead>
@@ -125,23 +134,16 @@ $bookings = Booking::getAllBookings();
                         <td><?php echo $booking['price']; ?></td>
                         <td><?php echo $booking['date']; ?></td>
                         <td><img src="../uploads/<?php echo $booking['photo']; ?>"></td>
+                        <td><?php echo $booking['number']; ?></td>
                         <td>
-                            <!-- Update button -->
                             <button class="update-btn" data-id="<?php echo $booking['id']; ?>">Update</button>
-                            <!-- Delete button -->
                             <button class="delete-btn" data-id="<?php echo $booking['id']; ?>">Delete</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
-          
-
-         
-            
         </table>
-
-
-
+        
         <div id="updateBookingForm">
             <h2>Update Booking</h2>
             <form id="updateForm">
@@ -153,13 +155,49 @@ $bookings = Booking::getAllBookings();
                 <input type="text" id="updatePrice" name="price"><br>
                 <label for="updateDate">Date:</label>
                 <input type="date" id="updateDate" name="date"><br>
+                <label for="updateNumber">Number:</label> 
+                <input type="text" id="updateNumber" name="number"><br>
                 <input type="submit" value="Update">
                 <button type="button" onclick="closeForm()">Close</button>
             </form>
         </div>
     </div>
-</main>
 
+    
+    <div class="recent-orders all">
+        <h2>Reservations</h2>
+        <table>
+           
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>User ID</th>
+                    <th>User Name</th>
+                    <th>User Email</th>
+                    <th>Booking ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php if ($reservations): ?>
+                    <?php foreach ($reservations as $reservation): ?>
+                        <tr>
+                            <td><?php echo $reservation['id']; ?></td>
+                            <td><?php echo $reservation['userId']; ?></td>
+                            <td><?php echo $reservation['userName']; ?></td>
+                            <td><?php echo $reservation['userEmail']; ?></td>
+                            <td><?php echo $reservation['bookingId']; ?></td>
+                            <td><button class="delete-reservation-btn" data-id="<?php echo $reservation['id']; ?>">Delete</button></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5">No reservations found</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </div>
+</main>
 
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -193,14 +231,12 @@ $bookings = Booking::getAllBookings();
             data: { action: "update_booking", id: id },
             dataType: "json",
             success: function(response) {
-                
                 $("#updateName").val(response.name);
                 $("#updateDescription").val(response.description);
                 $("#updatePrice").val(response.price);
                 $("#updateDate").val(response.date);
-                
+                $("#updateNumber").val(response.number);
                 $("#updateBookingForm").show();
-                
                 $("#updateForm").data("booking-id", id);
             },
             error: function(xhr, status, error) {
@@ -210,17 +246,14 @@ $bookings = Booking::getAllBookings();
         });
     });
 
-
-$("#updateForm").submit(function(event) {
+    $("#updateForm").submit(function(event) {
         event.preventDefault(); 
-        
-       
         var id = $(this).data("booking-id");
         var name = $("#updateName").val();
         var description = $("#updateDescription").val();
         var price = $("#updatePrice").val();
         var date = $("#updateDate").val();
-        
+        var number = $("#updateNumber").val();
         
         if (name === "") {
             name = $("#updateName").attr("placeholder");
@@ -234,7 +267,9 @@ $("#updateForm").submit(function(event) {
         if (date === "") {
             date = $("#updateDate").attr("placeholder");
         }
-        
+        if (number === "") {
+            number = $("#updateNumber").attr("placeholder");
+        }
         
         $.ajax({
             url: "../controller/updateBookingController.php",
@@ -245,7 +280,8 @@ $("#updateForm").submit(function(event) {
                 name: name,
                 description: description,
                 price: price,
-                date: date
+                date: date ,
+                number: number
             },
             dataType: "json",
             success: function(response) {
@@ -259,10 +295,33 @@ $("#updateForm").submit(function(event) {
     });
 });
 
-    
-    function closeForm() {
-        $("#updateBookingForm").hide();
-    }
+$(document).ready(function() {
+    $(".delete-reservation-btn").click(function() {
+        var id = $(this).data("id");
+       console.log("Reservation ID to delete:", id); 
+        if (confirm("Are you sure you want to delete this reservation?")) {
+            $.ajax({
+                url: "../controller/deleteReservationController.php", 
+                method: "POST",
+                data:  { action: "delete_reservation", id: id },
+                dataType: "json",
+                success: function(response) {
+                    alert(response.message);
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert("Error deleting reservation: " + xhr.responseText);
+                    console.log("Error deleting reservation: " + xhr.responseText);
+                }
+            });
+        }
+    });
+});
+
+
+function closeForm() {
+    $("#updateBookingForm").hide();
+}
 </script>
 </body>
 </html>

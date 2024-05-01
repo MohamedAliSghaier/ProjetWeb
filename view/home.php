@@ -41,34 +41,69 @@
     * License: https://bootstrapmade.com/license/
     ======================================================== -->
     <style>
-        .card {
-            margin-bottom: 20px;
-            border-radius: 15px; /* New styling */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* New styling */
-        }
-        .card:hover {
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* New styling */
-        }
-        .card-title {
-            font-size: 1.5em; /* New styling */
-            color: #333; /* New styling */
-            margin-bottom: 10px; /* New styling */
-        }
-        .card-text {
-            font-size: 1.1em; /* New styling */
-            color: #666; /* New styling */
-            margin-bottom: 15px; /* New styling */
-        }
-        .btn-primary {
-        background-color: #5c9f24; /* Change to the desired color */
-        border-color: #5c9f24; /* Change to the desired color */
-       }
+    
+        .unavailable {
+        background-color: #eee;
+    }
 
-     .btn-primary:hover {
-      background-color: #5c9f24; /* Keep the same color on hover */
-       border-color: #5c9f24; /* Keep the same color on hover */
-      }
-    </style>
+    .unavailable .card-body {
+        opacity: 0.5;
+    }
+
+    .unavailable .book-now-btn {
+        display: none;
+    }
+
+    .unavailable .unavailable-text {
+        color: red;
+        font-weight: bold;
+    }
+
+
+    .booking-card {
+    display: block;
+    transform: translateY(20px); /* Initial position for animation */
+    transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transition */
+}
+
+
+    .card {
+        margin-bottom: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .card:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    .card-title {
+        font-size: 1.5em;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    .card-text {
+        font-size: 1.1em;
+        color: #666;
+        margin-bottom: 15px;
+    }
+
+    /* Custom button styles */
+    .book-now-btn {
+        background-color: #5c9f24; /* Base green color */
+        border: none;
+        border-radius: 25px; /* Adjust the border radius as needed */
+        color: white;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .book-now-btn:hover {
+        background-color: #4b8620; /* Darker green color on hover */
+    }
+</style>
+
+
 </head>
 <body>
       
@@ -82,7 +117,7 @@
         <div class="carousel-inner" role="listbox">
 
           <!-- Slide 1 -->
-          <div class="carousel-item active" style="background-image: url(../assets/img/slide/sidibou.jpg);">
+          <div class="carousel-item active" style="background-image: url(../assets/img/slide/2.png);">
             <div class="carousel-container">
               <div class="carousel-content">
                 <h2 class="animate__animated animate__fadeInDown">Sidi Bou Said</h2>
@@ -95,7 +130,7 @@
           </div> 
 
           <!-- Slide 2 -->
-          <div class="carousel-item" style="background-image: url(../assets/img/slide/tozeur.jpg);">
+          <div class="carousel-item" style="background-image: url(../assets/img/slide/14.png);">
             <div class="carousel-container">
               <div class="carousel-content">
                 <h2 class="animate__animated animate__fadeInDown">Lorem Ipsum Dolor</h2>
@@ -108,7 +143,7 @@
           </div>
 
           <!-- Slide 3 -->
-          <div class="carousel-item" style="background-image: url(../assets/img/slide/eljem.jpg);">
+          <div class="carousel-item" style="background-image: url(../assets/img/slide/17.png);">
             <div class="carousel-container">
               <div class="carousel-content">
                 <h2 class="animate__animated animate__fadeInDown">Sequi ea ut et est quaerat</h2>
@@ -491,30 +526,80 @@
     </div>
 
   </div>
-</section><!-- End Portfolio Section -->
-<div class="container">
-     <div class="section-title">
-         <h2>Bookings</h2>
-      </div>
-        <div class="row">
-            <?php foreach ($bookings as $booking): ?>
-                <div class="col-md-4">
-                    <div class="card">
-                        <img src="../uploads/<?php echo $booking['photo']; ?>" class="card-img-top" alt="<?php echo $booking['name']; ?>">
-                        <div class="card-body">
-                            <h5 class="card-title"><?php echo $booking['name']; ?></h5>
-                            <p class="card-text"><?php echo $booking['description']; ?></p>
-                            <p class="card-text">Price: TND<?php echo $booking['price']; ?></p>
-                            <p class="card-text">Date: <?php echo $booking['date']; ?></p>
-                            <button class="btn btn-primary book-now-btn" data-booking-id="<?php echo $booking['id']; ?>">Book Now</button>
-                        </div>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        </div>
+</section>
+<div class="container" id="bookingContainer">
+    <div class="section-title">
+        <h2>Bookings</h2>
     </div>
+    <div class="row" id="bookingRow">
+    <?php foreach ($bookings as $booking): ?>
+        <?php
+            $isUnavailable = ($booking['number'] == 0 || strtotime($booking['date']) < strtotime('today'));
+        ?>
+        <div class="col-md-4 booking-card">
+            <div class="card <?php echo ($isUnavailable) ? 'unavailable' : ''; ?>">
+                <img src="../uploads/<?php echo $booking['photo']; ?>" class="card-img-top" alt="<?php echo $booking['name']; ?>">
+                <div class="card-body">
+                    <h5 class="card-title"><?php echo $booking['name']; ?></h5>
+                    <p class="card-text"><?php echo $booking['description']; ?></p>
+                    <p class="card-text">Price: TND<?php echo $booking['price']; ?></p>
+                    <p class="card-text">Date: <?php echo $booking['date']; ?></p>
+                    <?php if (!$isUnavailable): ?>
+                        <button class="book-now-btn" data-booking-id="<?php echo $booking['id']; ?>">Book Now</button>
+                    <?php else: ?>
+                        <p class="unavailable-text">No longer available</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
 
+
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/ScrollTrigger.min.js"></script>
+
+
+    <script>
+    $(document).ready(function(){
+        
+        gsap.registerPlugin(ScrollTrigger);
+
+        
+        $(".booking-card").each(function(index, card) {
+            
+            gsap.set(card, { opacity: 0, y: 50 });
+
+            
+            var tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 80%", 
+                    end: "bottom top",
+                    scrub: true 
+                }
+            });
+
+           
+            tl.to(card, {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                ease: "power4.out"
+            });
+        });
+    });
+</script>
+
+
+
+
+
+
 <script>
     $(document).ready(function() {
        

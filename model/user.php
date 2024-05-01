@@ -10,7 +10,7 @@ class User {
     }
 
     public function login($email, $password) {
-        $stmt = $this->pdo->prepare("SELECT id, username, photo, password FROM users WHERE email = ?");
+        $stmt = $this->pdo->prepare("SELECT id, username, photo, email, password FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($user && password_verify($password, $user['password'])) {
@@ -19,6 +19,7 @@ class User {
         }
         return false;
     }
+    
 
     public function register($name, $email, $password, $photo) {
         

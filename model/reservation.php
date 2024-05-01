@@ -10,7 +10,7 @@ class Reservation {
     private $bookingId;
     
     public function __construct($userId, $userName, $userEmail, $bookingId) {
-        $this->id = $this->generateUniqueID(); // Generate unique ID
+        $this->id = $this->generateUniqueID(); 
         $this->userId = $userId;
         $this->userName = $userName;
         $this->userEmail = $userEmail;
@@ -53,48 +53,71 @@ class Reservation {
         $this->bookingId = $bookingId;
     }
     
-    // Method to generate a unique ID
+    
     private function generateUniqueID() {
-        // Generate a random 4-digit ID
         $id = str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
-        // Check if the generated ID already exists in the database
-        // Assuming $pdo is defined in config.php and accessible here
+       
         $pdo = config::getConnexion();
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM reservation WHERE id = ?");
         $stmt->execute([$id]);
         $count = $stmt->fetchColumn();
         
-        // If the ID already exists, generate a new one
+        
         while ($count > 0) {
             $id = str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
             $stmt->execute([$id]);
             $count = $stmt->fetchColumn();
         }
 
-        // Return the unique ID
+        
         return $id;
     }
     
     
     public function save() {
-        // Assuming $pdo is defined in config.php and accessible here
+        
         $pdo = config::getConnexion();
         
-        // Prepare the SQL statement
+       
         $stmt = $pdo->prepare("INSERT INTO reservation (id, userId, userName, userEmail, bookingId) VALUES (?, ?, ?, ?, ?)");
         
-        // Bind parameters and execute the statement
+       
         $result = $stmt->execute([$this->id, $this->userId, $this->userName, $this->userEmail, $this->bookingId]);
         
-        return $result; // Return the result of the execution
+        return $result; 
+    }
+
+    public static function deleteReservation($reservationId) {
+        try {
+           
+            $pdo = config::getConnexion();
+            $stmt = $pdo->prepare("DELETE FROM reservation WHERE id = ?");
+            $stmt->execute([$reservationId]);
+    
+            return ["success" => true, "message" => "Reservation deleted successfully"];
+        } catch (PDOException $e) {
+            
+            return ["success" => false, "message" => "Failed to delete reservation"];
+        }
     }
 
     public static function getAllReservations() {
         try {
             $pdo = config::getConnexion();
-            $stmt = $pdo->query("SELECT * FROM reservations");
+            $stmt = $pdo->query("SELECT * FROM reservation");
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            return false;
+        }
+    }
+
+    public static function getReservationByUserIdAndBookingId($userId, $bookingId) {
+        try {
+            $pdo = config::getConnexion();
+            $stmt = $pdo->prepare("SELECT * FROM reservation WHERE userId = ? AND bookingId = ?");
+            $stmt->execute([$userId, $bookingId]);
+            return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             return false;
         }

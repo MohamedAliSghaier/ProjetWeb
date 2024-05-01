@@ -9,14 +9,16 @@ class Booking {
     private $price;
     private $date;
     private $photo;
+    private $number ;
 
-    public function __construct($name, $description, $price, $date, $photo, $id = null) {
+    public function __construct($name, $description, $price, $date, $photo,$number, $id = null) {
         $this->id = $id ?? $this->generateUniqueId();
         $this->name = $name;
         $this->description = $description;
         $this->price = $price;
         $this->date = $date;
         $this->photo = $photo;
+        $this->number = $number ; 
     }
 
     public function getId() {
@@ -62,12 +64,19 @@ class Booking {
     public function setPhoto($photo) {
         $this->photo = $photo;
     }
+    public function getNumber($number){
+        return  $this->number = $number ; 
+    }
+    public function setNumber($number){
+        $this->number = $number ;
+    }
+    
 
     public function save() {
         try {
             $pdo = config::getConnexion();
-            $stmt = $pdo->prepare("INSERT INTO bookings (id, name, description, price, date, photo) VALUES (?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$this->id, $this->name, $this->description, $this->price, $this->date, $this->photo]);
+            $stmt = $pdo->prepare("INSERT INTO bookings (id, name, description, price, date, photo,number) VALUES (?, ?, ?, ?, ?, ?,?)");
+            $stmt->execute([$this->id, $this->name, $this->description, $this->price, $this->date, $this->photo,$this->number]);
             return true; 
         } catch (PDOException $e) {
             return false;
@@ -88,16 +97,14 @@ class Booking {
         try {
             $pdo = config::getConnexion();
     
-            // Prepare the SQL statement
-            $stmt = $pdo->prepare("SELECT * FROM bookings WHERE id = :id");
+             $stmt = $pdo->prepare("SELECT * FROM bookings WHERE id = :id");
     
-            // Bind the parameter
-            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
     
-            // Execute the query
+            
             $stmt->execute();
     
-            // Fetch the result
+            
             $booking = $stmt->fetch(PDO::FETCH_ASSOC);
     
             if ($booking) {
@@ -106,7 +113,7 @@ class Booking {
                 return null;
             }
         } catch (PDOException $e) {
-            // Handle any errors
+            
             return null;
         }
     }
@@ -127,13 +134,42 @@ class Booking {
     public function update() {
         try {
             $pdo = config::getConnexion();
-            $stmt = $pdo->prepare("UPDATE bookings SET name = ?, description = ?, price = ?, date = ?, photo = ? WHERE id = ?");
-            $stmt->execute([$this->name, $this->description, $this->price, $this->date, $this->photo, $this->id]);
+            $stmt = $pdo->prepare("UPDATE bookings SET name = ?, description = ?, price = ?, date = ?, photo = ? , number = ? WHERE id = ?");
+            $stmt->execute([$this->name, $this->description, $this->price, $this->date, $this->photo,$this->number, $this->id]);
             return true;
         } catch (PDOException $e) {
             return false;
         }
     }
+
+    public function updateSlots($decrement = false) {
+        try {
+            $pdo = config::getConnexion();
+            if ($decrement) {
+               
+                $stmt = $pdo->prepare("UPDATE bookings SET number = number - 1 WHERE id = ?");
+                $stmt->execute([$this->id]);
+    
+               
+                $stmt = $pdo->prepare("SELECT number FROM bookings WHERE id = ?");
+                $stmt->execute([$this->id]);
+                $number = $stmt->fetchColumn();
+               // if ($number === 0) {
+                 //   $this->delete();
+                   // return false; 
+                //}
+            } else {
+                
+                $stmt = $pdo->prepare("UPDATE bookings SET number = number + 1 WHERE id = ?");
+                $stmt->execute([$this->id]);
+            }
+            return true; 
+        } catch (PDOException $e) {
+            return false; 
+        }
+    }
+    
+    
 
     private function generateUniqueId() {
         return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, 4);

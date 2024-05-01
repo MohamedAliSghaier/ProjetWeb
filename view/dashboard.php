@@ -128,6 +128,8 @@
                         <input type="number" id="price" name="price" required><br><br>
                         <label for="date">Date:</label>
                         <input type="date" id="date" name="date" required><br><br>
+                        <label for="number">Number:</label> <!-- New input field for number -->
+                        <input type="number" id="number" name="number" required><br><br>
                         <label for="photo">Photo:</label>
                         <input type="file" id="photo" name="photo" accept="image/*" required><br><br>
                         <input type="submit" value="Submit">
