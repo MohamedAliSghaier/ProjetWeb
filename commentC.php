@@ -1,96 +1,108 @@
 <?php
-include "../config.php";
 
- class commentC{
-    public function listcomments(){
-        $sql="SELECT * FROM comment";
+require_once('config.php');
+
+class commentC
+{
+    function addComment($comment)
+{
+    $sql = "INSERT INTO comment (cin, commentaire) 
+            VALUES (:cin, :commentaire)";
+    $db = Config::getConnexion(); // Assuming Config is your database configuration class
+    try {
+        $query = $db->prepare($sql);
+        $query->execute([
+            'cin' => $comment->getCin(),
+            'commentaire' => $comment->getCommentaire()
+        ]);
+    } catch (Exception $e) {
+        echo 'Error: ' . $e->getMessage();
+    }
+}
+
+
+    public function listecomment()
+    {
+        $sql = "SELECT * FROM comment";
         $db = config::getConnexion();
-        try{
-        $list = $db->query($sql);
-        return $list;
-        }catch(Exception $e){
+        try {
+            $liste = $db->query($sql);
+            return $liste;
+        } catch (Exception $e) {
             die('Error:' . $e->getMessage());
         }
     }
 
-    public function getcomment($Id){
-        $sql="SELECT * FROM comment WHERE Id=$Id ";
+    public function listeRatingASC()
+    {
+        $sql = "SELECT * FROM trajettaxi ORDER BY rating ASC";
         $db = config::getConnexion();
-        try{
-        $list = $db->query($sql);
-        return $list;
-        }catch(Exception $e){
+        try {
+            $liste = $db->query($sql);
+            return $liste;
+        } catch (Exception $e) {
             die('Error:' . $e->getMessage());
         }
     }
 
-    public function addComment($contenu, $id_post){
-        $sql = "INSERT INTO comment(contenuC, datee, idP) VALUES (?, NOW(), ?)";
+    public function listeRatingDESC()
+    {
+        $sql = "SELECT * FROM trajettaxi ORDER BY rating DESC";
+        $db = config::getConnexion();
+        try {
+            $liste = $db->query($sql);
+            return $liste;
+        } catch (Exception $e) {
+            die('Error:' . $e->getMessage());
+        }
+    }
+
+    function deletecomment($idcom)
+    {
+        $sql = "DELETE FROM comment WHERE idcom = :idcom";
+        $db = config::getConnexion();
+        $req = $db->prepare($sql);
+        $req->bindValue(':idcom', $idcom);
+        try {
+            $req->execute();
+        } catch (Exception $e) {
+            die('Error:' . $e->getMessage());
+        }
+    }
+
+    function showcomment($idcom)
+    {
+        $sql = "SELECT * FROM comment WHERE idcom = :idcom";
         $db = config::getConnexion();
         try {
             $query = $db->prepare($sql);
-            $query->execute([$contenu, $id_post]);
-            return true; // Retourne true si l'insertion a réussi
-        } catch(Exception $e) {
-            die('Error:' . $e->getMessage());
-            return false; // Retourne false en cas d'erreur
+            $query->bindValue(':idcom', $idcom);
+            $query->execute();
+            $idcom = $query->fetch();
+            return $idcom;
+        } catch (Exception $e) {
+            // Log or handle the exception
+            throw new Exception('Error showing comment: ' . $e->getMessage());
         }
     }
-    
-    
-    
 
-    public function deletecomment($Id)
+    function updatecomment($comment, $idcom)
     {
-        $sql="DELETE FROM comment WHERE Id=:Id";
-        $db = config::getConnexion();
-        try{
-            $query=$db->prepare($sql);
-            $query->bindValue(':Id',$Id);
-            $query->execute();
-            $rowCount=$query->rowCount();
-            if ($rowCount>0)
-            {
-                echo "Delete Succesful";
-                header('location:forum.php');
-            }else{
-                echo "No rows deleted.";
-            }
-
+        try {
+            $db = config::getConnexion();
+            $query = $db->prepare(
+                'UPDATE comment SET
+              cin = :cin,commentaire=:commentaire
+            WHERE idcom = :idcom'
+            );
+            $query->execute([
+                'idcom' => $idcom,
+                'cin' => $comment->getcin(),
+                'commentaire' => $comment->getcommentaire()
+            ]);
+            echo $query->rowCount() . " records UPDATED successfully <br>";
+        } catch (PDOException $e) {
+            echo $e->getMessage(); // Handle the exception appropriately for your application
         }
-        catch(Exception $e)
-        {
-            die('Error:' . $e->getMessage());
-        }
-
-
     }
-
-    public function updatecomment($Id,$contenu){
-
-        $sql="UPDATE comment SET contenuC=:contenu WHERE Id=:Id";
-        $db = config::getConnexion();
-        try{
-            $query=$db->prepare($sql);
-            $query->bindValue(':Id',$Id);
-            $query->bindValue(':contenu',$contenu);
-           /* $query->bindValue(':ProductImage',$ProductImage);*/
-            $query->execute();
-            echo $query->rowCount() . "Record Updated succesfully";
-            header('location:forum.php');
-
-
-
-        }
-        catch(Exception $e)
-        {
-            die('Error:' . $e->getMessage());
-        }
-
-
-    }
-    
-
-    }
- 
-?>
+}

@@ -9,7 +9,7 @@ class config
         if (!isset(self::$pdo)) {
             try {
                 self::$pdo = new PDO(
-                    'mysql:host=localhost;dbname=projet_web',
+                    'mysql:host=localhost;dbname=post', 
                     'root',
                     '',
                     [
@@ -17,6 +17,7 @@ class config
                         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
                     ]
                 );
+                //echo "connected successfully";
             } catch (Exception $e) {
                 die('Erreur: ' . $e->getMessage());
             }
@@ -25,4 +26,5 @@ class config
     }
 }
 
-?>
+
+config::getConnexion();

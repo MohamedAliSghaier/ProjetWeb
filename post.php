@@ -1,42 +1,63 @@
 <?php
-  class post{
-    private $IdUser=null;
-    private $contenuP =null;
-    private $IdP =null;
-    private $date=null;
-
-    public function __construct(){
-    }
-
-  
-  
-    public function getContenuP(){
-        return $this->contenuP;
-    }
-    public function getIdP(){
-        return $this->IdP;
-    }
-    public function getDate(){
-        return $this->date;
-    }
-    public function getIdUser(){
-        return $this->IdUser;
-    }
-
-    public function setIdP($IdP){
-        $this->IdP = $IdP;
-    }
-    
-    public function setContenuP($contenuP){
-       $this->contenuP= $contenuP;
-    }
-    public function setDate($date){
-        $this->date= $date;
-     }
-     public function setIdUser($IdUser){
-        $this->IdUser= $IdUser;
-     }
+class post{
+    private ?string $cin=null;
+    private ?string $nom=null;
+    private ?string $prenom=null;
+    private ?string $email=null;
+    private ?string $poste=null;
    
-  }
+    
 
+    public function __construct($cin, $nom, $prenom, $email, $poste)
+    {
+        $this->cin = $cin;
+        $this->nom = $nom;
+        $this->prenom = $prenom;
+        $this->email = $email;
+        $this->poste = $poste;
+        
+    }
+    public function getcin(){
+        return   $this->cin;
+    }
+    public function setcin($cin){
+        $this->cin=$cin;
+        return $this;
+    }
+
+    public function getnom(){
+        return   $this->nom;
+    }
+    public function setnom($nom){
+        $this->nom=$nom;
+        return $this;
+    }
+
+    public function getprenom(){
+        return   $this->prenom;
+    }
+    public function setprenom($prenom){
+        $this->prenom=$prenom;
+        return $this;
+    }
+
+    public function getemail(){
+        return   $this->email;
+    }
+    public function setemail($email){
+        $this->email=$email;
+        return $this;
+    }
+
+    public function getposte(){
+        return   $this->poste;
+    }
+    public function setpost($poste){
+        $this->poste=$poste;
+        return $this;
+    }
+
+    
+
+}
 ?>
