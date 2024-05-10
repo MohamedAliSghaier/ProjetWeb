@@ -1,12 +1,17 @@
 <?php
 
-
-
-
 include '../Controller/commentC.php';
 include '../Controller/postC.php';
 include '../Model/comment.php';
 include '../Model/post.php';
+include("header.php");
+
+//session_start();
+
+
+
+
+
 
 $CommentC = new commentC();
 $PostC = new PostC();
@@ -23,13 +28,13 @@ if(isset($_POST['submit'])) {
       // Appel de la méthode addPost avec le contenu et l'id_user
       $success = $PostC->addPost($contenuP, $id_user); 
 
-      if ($success) {
+     /* if ($success) {
           // Redirection après l'ajout d'un post
           header('Location: ' . $_SERVER['PHP_SELF']);
           exit; // Assurez-vous de terminer le script après la redirection
       } else {
           echo "Une erreur s'est produite lors de l'ajout du post.";
-      }
+      }*/
   } else {
       echo "Le champ contenu est obligatoire.";
   }
@@ -42,10 +47,49 @@ if(isset($_POST['submitC'])) {
   // Ajouter le commentaire
   $CommentC->addComment($contenu,$idP);
   
-  // Redirection vers la page ou le message de confirmation
+  /* Redirection vers la page ou le message de confirmation
   header('Location: ' . $_SERVER['PHP_SELF']);
-  exit();
+  exit();*/
 }
+
+// Traitement des likes et dislikes pour les posts
+if (isset($_POST['like'])) {
+  $postId = $_POST['like'];
+  $PostC->likePost($postId);
+  /* Recharger la page après l'action
+  header("Location: ".$_SERVER['PHP_SELF']);
+  exit();*/
+}
+
+if (isset($_POST['dislike'])) {
+  $postId = $_POST['dislike'];
+  $PostC->dislikePost($postId);
+  /* Recharger la page après l'action
+  header("Location: ".$_SERVER['PHP_SELF']);
+  exit();*/
+}
+
+// Traitement des likes et dislikes pour les commentaires
+if (isset($_POST['likeC'])) {
+  $commentId = $_POST['likeC'];
+  $CommentC->likeComment($commentId);
+  /* Recharger la page après l'action
+  header("Location: ".$_SERVER['PHP_SELF']);
+  exit();*/
+}
+
+
+
+if (isset($_POST['dislikeC'])) {
+  $commentId = $_POST['dislikeC'];
+  $CommentC->dislikeComment($commentId);
+  /* Recharger la page après l'action
+  header("Location: ".$_SERVER['PHP_SELF']);
+  exit();*/
+}
+
+
+
 
 
 // Récupération de la liste des posts
@@ -55,16 +99,13 @@ $list = $PostC->listPosts();
 
 
 <html lang="en">
-
+<head>
 <meta charset="utf-8">
 
 
 <title>Social Network home news feed - Bootdey.com</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
-<head><?php
-include("header.php"); ?></head>
-<title>posts Page</title>
 <style type="text/css">
     	body{
     margin-top:20px;
@@ -168,10 +209,27 @@ include("header.php"); ?></head>
     margin-top: 15px;
 }
     </style>
-
+</head>
 <body>
-  
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<section id="hero">
+      <div class="hero-container">
+        <div id="heroCarousel" data-bs-interval="5000" class="carousel slide carousel-fade" data-bs-ride="carousel">
+
+          <ol class="carousel-indicators" id="hero-carousel-indicators"></ol>
+
+          <div class="carousel-inner" role="listbox">
+
+            <!-- Slide 1 -->
+            <div class="carousel-item active">
+              <div class="carousel-container">
+                <div class="carousel-content">
+                  <h2 class="animate__animated animate__fadeInDown">Please give us your review respectfully </h2>
+                  <p class="animate__animated animate__fadeInUp">Ut velit est quam dolor ad a aliquid qui aliquid. Sequi ea ut et est quaerat sequi nihil ut aliquam. Occaecati alias dolorem mollitia ut. Similique ea voluptatem. Esse doloremque accusamus repellendus deleniti vel. Minus et tempore modi architecto.</p>
+                </div>
+              </div>
+            </div>
+  </section>
 <div class="container bootdey">
 <div class="col-md-12 bootstrap snippets">
 <div class="panel">
@@ -220,9 +278,12 @@ foreach ($list as $Post) {
             <button type="submit" class="btn btn-sm btn-default btn-hover-primary" name="submitC">Comment</button>
           </form>
           <div class="btn-group">
-            <a class="btn btn-sm btn-default btn-hover-success" href="#"><i class="fa fa-thumbs-up"></i></a>
-            <a class="btn btn-sm btn-default btn-hover-danger" href="#"><i class="fa fa-thumbs-down"></i></a>
-          </div>
+    <form method="POST">
+        <button type="submit" class="btn btn-sm btn-default btn-hover-success" name="like" value="<?php echo $Post['idP']; ?>"><i class="fa fa-thumbs-up"></i> <?php echo $Post['NbLikePost']; ?></button>
+        <button type="submit" class="btn btn-sm btn-default btn-hover-danger" name="dislike" value="<?php echo $Post['idP']; ?>"><i class="fa fa-thumbs-down"></i> <?php echo $Post['NbDislikePost']; ?></button>
+    </form>
+</div>
+
         </div>
         <hr>
         <!-- Affichage des commentaires pour ce post -->
@@ -249,10 +310,13 @@ foreach ($list as $Post) {
             <!-- Affichage du contenu du commentaire -->
             <p><?php echo $comment['contenuC']; ?></p>
             <div class="pad-ver">
-              <div class="btn-group">
-                <a class="btn btn-sm btn-default btn-hover-success" href="#"><i class="fa fa-thumbs-up"></i></a>
-                <a class="btn btn-sm btn-default btn-hover-danger" href="#"><i class="fa fa-thumbs-down"></i></a>
-              </div>
+            <div class="btn-group">
+    <form method="POST">
+        <button type="submit" class="btn btn-sm btn-default btn-hover-success" name="likeC" value="<?php echo $comment['id']; ?>"><i class="fa fa-thumbs-up"></i><?php echo $comment['NbLikeComment'] ?></button>
+        <button type="submit" class="btn btn-sm btn-default btn-hover-danger" name="dislikeC" value="<?php echo $comment['id']; ?>"><i class="fa fa-thumbs-down"></i><?php echo $comment['NbDislikeComment'] ?></button>
+    </form>
+</div>
+
             </div>
           </div>
         </div>
@@ -270,10 +334,11 @@ foreach ($list as $Post) {
 
 </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="https://netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <script type="text/javascript">
-    
+  
 </script>
 </body>
 
